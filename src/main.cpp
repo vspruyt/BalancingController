@@ -3,6 +3,7 @@
 #include <Stream.h>
 #include "Adafruit_BLE.h"
 #include "Adafruit_BluefruitLE_UART.h"
+#include "Adafruit_BluefruitLE_SPI.h"
 #include "BluefruitConfig.h"
 #include <Fusion.h>
 
@@ -120,7 +121,7 @@ void loop() {
       new_ahrs_reading_available = false;      
 
       if(ctr > 400){                
-        // Serial.println(samplePeriod, 10);
+        Serial.println(samplePeriod, 10);
         Serial.print("Orientation: ");
         FusionEulerAngles eulerAngles = FusionQuaternionToEulerAngles(sensor_orientation);
         Serial.print(eulerAngles.angle.yaw);
