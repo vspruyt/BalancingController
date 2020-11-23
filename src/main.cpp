@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <Stream.h>
+#include <LiquidCrystal.h>
 #include "Adafruit_BLE.h"
 #include "Adafruit_BluefruitLE_UART.h"
 #include "Adafruit_BluefruitLE_SPI.h"
@@ -25,8 +26,17 @@ uint32_t timestamp;
 float speed_input = 0.0;
 float steering_input = 0.0;
 
+LiquidCrystal lcd(27, 28, 32, 31, 30, 29); // LCD Shield
+char lcd_buff[16];
+
 void setup() {
   Serial.begin(115200);
+
+  // set up the LCD's number of columns and rows:
+  lcd.begin(16, 2);
+  // Print a message to the LCD.
+  lcd.print("Sample period:");
+
   
   // Configure the input serial port for our AHRS device
   INPUT_AHRS_SERIAL.begin(INPUT_AHRS_BAUDRATE);  
@@ -109,10 +119,11 @@ void bleEvent(){
 }
 
 int ctr = 0;
+int lcd_ctr = 0;
 void loop() {      
 
     digitalWrite(13, HIGH);    
-    
+
     if(new_ahrs_reading_available){
       uint32_t curr_time = micros();
       uint32_t time_diff = curr_time - timestamp;      
@@ -129,8 +140,17 @@ void loop() {
         Serial.print(eulerAngles.angle.pitch);
         Serial.print(" ");
         Serial.println(eulerAngles.angle.roll); 
-        ctr = 0;
+        ctr = 0;                
+
+      } 
+      if(lcd_ctr>200){
+        lcd.setCursor(0, 1);             
+        sprintf(lcd_buff, "%0.4f ms", 1000*samplePeriod);            
+        lcd_buff[9]='\0';
+        lcd.print(lcd_buff);     
+        lcd_ctr = 0;
       }
+      lcd_ctr += 1;
 
       ctr += 1;
     }
